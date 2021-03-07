@@ -20,18 +20,13 @@ int main( int argc, char** argv )
 
     // Set the namespace and id for this marker.  This serves to create a unique ID
     // Any marker sent with the same namespace and id will overwrite the old one
-    marker.ns = "basic_shapes";
+    marker.ns = "add_markers";
     marker.id = 0;
 
     // Set the marker type.  Initially this is CUBE, and cycles between that and SPHERE, ARROW, and CYLINDER
     marker.type = shape;
 
-    // Set the marker action.  Options are ADD, DELETE, and new in ROS Indigo: 3 (DELETEALL)
-    marker.action = visualization_msgs::Marker::ADD;
-
     // Set the pose of the marker.  This is a full 6DOF pose relative to the frame/time specified in the header
-    marker.pose.position.x = 0;
-    marker.pose.position.y = 0;
     marker.pose.position.z = 0;
     marker.pose.orientation.x = 0.0;
     marker.pose.orientation.y = 0.0;
@@ -45,8 +40,8 @@ int main( int argc, char** argv )
 
     // Set the color -- be sure to set alpha to something non-zero!
     marker.color.r = 0.0f;
-    marker.color.g = 1.0f;
-    marker.color.b = 0.0f;
+    marker.color.g = 0.0f;
+    marker.color.b = 1.0f;
     marker.color.a = 1.0;
 
     marker.lifetime = ros::Duration();
@@ -61,25 +56,21 @@ int main( int argc, char** argv )
       ROS_WARN_ONCE("Please create a subscriber to the marker");
       sleep(1);
     }
-    marker_pub.publish(marker);
 
-    // Cycle between different shapes
-    switch (shape)
-    {
-    case visualization_msgs::Marker::CUBE:
-      shape = visualization_msgs::Marker::SPHERE;
-      break;
-    case visualization_msgs::Marker::SPHERE:
-      shape = visualization_msgs::Marker::ARROW;
-      break;
-    case visualization_msgs::Marker::ARROW:
-      shape = visualization_msgs::Marker::CYLINDER;
-      break;
-    case visualization_msgs::Marker::CYLINDER:
-      shape = visualization_msgs::Marker::CUBE;
-      break;
+    float goal_points[2][2] = {{11.0, -11.0}, {13.5, 0.0}};
+    
+    for (int i = 0; i < 2; i++){
+      marker.pose.position.x = goal_points[i][0];
+      marker.pose.position.y = goal_points[i][1];
+      marker.action = visualization_msgs::Marker::ADD;
+      marker_pub.publish(marker);
+      ros::Duration(5.0).sleep();
+
+      marker.action = visualization_msgs::Marker::DELETE;
+      marker_pub.publish(marker);
+      ros::Duration(5.0).sleep();
     }
 
-    r.sleep();
+    return 0;
   }
 }
