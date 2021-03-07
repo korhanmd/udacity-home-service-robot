@@ -21,19 +21,35 @@ int main(int argc, char** argv){
   goal.target_pose.header.frame_id = "map";
   goal.target_pose.header.stamp = ros::Time::now();
 
-  goal.target_pose.pose.position.x = 11.0;
-  goal.target_pose.pose.position.y = -11.0;
+  float goal_points[2][2] = {{11.0, -11.0}, {13.5, 0.0}};
+
   goal.target_pose.pose.orientation.w = 1.0;
 
-  ROS_INFO("Sending goal");
-  ac.sendGoal(goal);
+  for (int i = 0; i < 2; i++){
+    goal.target_pose.pose.position.x = goal_points[i][0];
+    goal.target_pose.pose.position.y = goal_points[i][1];
 
-  ac.waitForResult();
+    ROS_INFO("Sending goal");
+    ac.sendGoal(goal);
 
-  if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-    ROS_INFO("Hooray, the base moved to the pick up point");
-  else
-    ROS_INFO("The base failed to move to the pick up point for some reason");
+    ac.waitForResult();
+
+
+    if (i == 0){
+      if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+        ROS_INFO("Hooray, the base moved to the pick up point");
+      else
+        ROS_INFO("The base failed to move to the pick up point for some reason");
+
+      ros::Duration(5.0).sleep();
+    }
+    else{
+      if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+        ROS_INFO("Hooray, the base moved to the drop off point");
+      else
+        ROS_INFO("The base failed to move to the drop off point for some reason");
+    }
+  }
 
   return 0;
 }
